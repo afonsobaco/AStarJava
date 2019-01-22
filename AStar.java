@@ -6,8 +6,8 @@ public class AStar {
     public static List<Integer> closedList = new ArrayList();
     public static List<Integer> openList = new ArrayList();
     public static int matrixSize = 6;
+    public static int startNode = 0;
     public static int endNode = 34;
-    public static int startNode = 13;
 
     public static void main(String... args) {
         for (int i = 0; i < map.length; i++) {
@@ -21,6 +21,8 @@ public class AStar {
     public static void setLocked() {
         map[15].locked = true;
         map[25].locked = true;
+        map[21].locked = true;
+        map[22].locked = true;
         map[27].locked = true;
         map[33].locked = true;
     }
@@ -70,6 +72,7 @@ public class AStar {
         List<Integer> tmpList = new ArrayList();
         tmpList.addAll(findCorners(node));
         tmpList.addAll(findOrthogonals(node));
+      
         for (Integer i : new ArrayList<Integer>(tmpList)) {
  			if (map[i].locked) {
                 tmpList.removeAll(List.of(i));
@@ -103,47 +106,60 @@ public class AStar {
     }
 
     public static int populateH(int i) {
-        int r1 = (endNode) % matrixSize;
-        int r2 = (i) % matrixSize;
+        int r1 = (endNode+1) % matrixSize;
+        int r2 = (i+1) % matrixSize;
         int a = r1 > r2 ? r1 - r2 : r2 - r1;
 
-        int d1 = (endNode) / matrixSize;
-        int d2 = (i) / matrixSize;
+        int d1 = (endNode+1) / matrixSize;
+        int d2 = (i+1) / matrixSize;
         int b = d1 > d2 ? d1 - d2 : d2 - d1;
         return a + b;
     }
 
     public static List<Integer> findCorners(int i) {
+      	int l = (i/matrixSize)+1;
+      	int c = (i%matrixSize)+1;
+      
         List<Integer> list = new ArrayList();
-        if (i - (matrixSize + 1) >= 0) {
-            list.add(i - (matrixSize + 1));
+        if (l > 1 && c > 1) {
+            list.add((i - matrixSize) - 1);
         }
-        if (i - (matrixSize - 1) >= 0) {
-            list.add(i - (matrixSize - 1));
+      	if (l > 1 && c < matrixSize) {
+            list.add((i - matrixSize) + 1);
         }
-        if (i + (matrixSize + 1) < map.length) {
-            list.add(i + (matrixSize + 1));
+      	if (l < map.length/matrixSize && c > 1) {
+            list.add((i + matrixSize) - 1);
         }
-        if (i + (matrixSize - 1) < map.length) {
-            list.add(i + (matrixSize - 1));
+      	if (l < map.length/matrixSize && c < matrixSize) {
+            list.add((i + matrixSize) + 1);
+        }
+      	if(list.contains(-1)){
+          System.out.println(i + " diagonal");
         }
         list.removeAll(openList);
         return list;
     }
 
     public static List<Integer> findOrthogonals(int i) {
+      	int l = (i/matrixSize)+1;
+      	int c = (i%matrixSize)+1;
+      	
         List<Integer> list = new ArrayList();
-        if (i - (matrixSize) >= 0) {
-            list.add(i - matrixSize);
-        }
-        if (i - 1 >= 0) {
+        if (c > 1) {
             list.add(i - 1);
         }
-        if (i + 1 < map.length) {
+       	if (c < matrixSize) {
             list.add(i + 1);
         }
-        if (i + (matrixSize) < map.length) {
+        if (l > 1) {
+            list.add(i - matrixSize);
+        }
+        if (l < map.length/matrixSize) {
             list.add(i + matrixSize);
+        }
+       
+      	if(list.contains(-1)){
+          System.out.println(i + " ortogonal");
         }
         list.removeAll(openList);
         return list;
@@ -156,11 +172,13 @@ public class AStar {
           list.add(endNode);
           int a = endNode;
           int count = 0;
-          while (!list.contains(startNode) && count <100){            
+          while (!list.contains(startNode) && count <100){  
+            System.out.print(a + " -> ");
             list.add(map[a].parent);
             a = map[a].parent;
             count++;
           }
+          System.out.println();
         }
           
     	for (int i = 0; i < map.length; i++) {
