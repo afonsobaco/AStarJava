@@ -27,14 +27,14 @@ public class AStar {
 
     public static void start() {
         int count = 0;
-        while (!endNodeFound(findSmallestFValue()) && count < 1000) {
+        while (!endNodeFound(findSmallestFValue()) && count < 20) {
             printMap();
             checkNode(findSmallestFValue());
             count++;
-        }
+        }      	
         System.out.println(openList);
         System.out.println(closedList);
-        printFinalMap();
+        printMap();
     }
 
     public static boolean endNodeFound(int node) {
@@ -108,28 +108,6 @@ public class AStar {
         return a + b;
     }
 
-    public static void printMap() {
-        for (int i = 0; i < map.length; i++) {
-            if (i % 6 == 0) {
-                System.out.println();
-            }
-            String strI = i < 10 ? " " + i : "" + i;
-            if (i == startNode)
-                System.out.print("[" + (strI) + " 0 " /* + map[i].h + "," + map[i].g + "," */ + map[i].f + "]");
-            else if (i == endNode)
-                System.out.print("[" + (strI) + " X " /* + map[i].h + "," + map[i].g + "," */ + map[i].f + "]");
-            else if (map[i].locked)
-                System.out.print("[" + (strI) + "===" /* + map[i].h + "," + map[i].g + "," */ + map[i].f + "]");
-            else
-                System.out.print("[" + (strI) + "   " /* + map[i].h + "," + map[i].g + "," */ + map[i].f + "]");
-        }
-        System.out.println();
-    }
-
-    public static void calculateGValue(int i) {
-
-    }
-
     public static List<Integer> findCorners(int i) {
         List<Integer> list = new ArrayList();
         if (i - (matrixSize + 1) >= 0) {
@@ -169,5 +147,59 @@ public class AStar {
     public static void printFinalMap() {
 
     }
-
+  
+    public static void printMap() {
+    	String l1  ="", l2 = "", l3 ="";
+          
+    	for (int i = 0; i < map.length; i++) {
+        	
+            String strI = String.format("%2s",i);
+            String strH = String.format("%7s",map[i].h == 0?"": map[i].h);
+            String strG = String.format("%7s",map[i].g == 0?"": map[i].g);
+            String strF = String.format("%2s",map[i].f == 0?"": map[i].f);
+          
+            if (map[i].locked){
+              	l1 += "║XXXXXXXXX║";
+              	l2 += "║XXXXXXXXX║";
+              	l3 += "║XXXXXXXXX║";
+            }else{
+            l1 += ("║" + strI + strH + "║");
+            l3 += ("║" + strF + strG + "║");         
+            
+            if (i == startNode || i == endNode){
+            	l2 += ("║    @    ║");
+            }else if (closedList.contains(i)){
+            	l2 += ("║    0    ║");
+            }else 
+                l2 += ("║         ║");
+            }
+          	if (i % (matrixSize) == matrixSize-1) {
+               	printLines(l1, l2, l3);
+				l1 = "";
+                l2 = "";
+                l3 = "";
+            }
+      	}
+      	System.out.println("---------------------------------------------------------------------------");
+         
+    }
+  
+  	public static void printLines(String l1, String l2, String l3){
+       	
+        String top = "";
+        String mid = "";
+        String bot = "";
+      	for(int i = 0 ; i < matrixSize; i++){
+      		top  += "╔═════════╗";
+          	mid  += "║         ║";
+          	bot  += "╚═════════╝";
+        }
+        System.out.println(top);
+    	System.out.println(l1);
+      	System.out.println(mid);      
+      	System.out.println(l2);
+      	System.out.println(mid);
+      	System.out.println(l3);
+     	System.out.println(bot);
+    }  
 }
