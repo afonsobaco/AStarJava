@@ -27,21 +27,25 @@ public class AStar {
 
     public static void start() {
         int count = 0;
-        while (!endNodeFound(findSmallestFValue()) && count < 20) {
-            printMap();
-            checkNode(findSmallestFValue());
+      	int smallest = findSmallestFValue();
+        while (!endNodeFound(smallest) && count < 200) {
+            //printMap(false);
+            checkNode(smallest);
             count++;
+          	smallest = findSmallestFValue();
         }      	
-        System.out.println(openList);
-        System.out.println(closedList);
-        printMap();
+        printMap(true);
     }
 
     public static boolean endNodeFound(int node) {
         List<Integer> tmpList = new ArrayList();
         tmpList.addAll(findCorners(node));
         tmpList.addAll(findOrthogonals(node));
-        return tmpList.contains(endNode);
+      	if(tmpList.contains(endNode)){
+        	map[endNode].parent = node;
+          	return true;
+        }
+        return false;
     }
 
     public static int findSmallestFValue() {
@@ -62,13 +66,13 @@ public class AStar {
 
     public static void checkNode(int node) {
         closedList.add(node);
+      	openList.removeAll(List.of(node));
         List<Integer> tmpList = new ArrayList();
         tmpList.addAll(findCorners(node));
         tmpList.addAll(findOrthogonals(node));
         for (Integer i : new ArrayList<Integer>(tmpList)) {
-
-            if (map[i].locked) {
-                tmpList.remove(i);
+ 			if (map[i].locked) {
+                tmpList.removeAll(List.of(i));
             }
             if (closedList.contains(i)) {
                 continue;
@@ -86,6 +90,7 @@ public class AStar {
                 map[i].f = map[i].g + map[i].h;
             }
         }
+      	tmpList.removeAll(closedList);
         openList.addAll(tmpList);
     }
 
@@ -111,16 +116,16 @@ public class AStar {
     public static List<Integer> findCorners(int i) {
         List<Integer> list = new ArrayList();
         if (i - (matrixSize + 1) >= 0) {
-            list.add(i - matrixSize + 1);
+            list.add(i - (matrixSize + 1));
         }
         if (i - (matrixSize - 1) >= 0) {
-            list.add(i - matrixSize - 1);
+            list.add(i - (matrixSize - 1));
         }
         if (i + (matrixSize + 1) < map.length) {
-            list.add(i + matrixSize + 1);
+            list.add(i + (matrixSize + 1));
         }
         if (i + (matrixSize - 1) < map.length) {
-            list.add(i + matrixSize - 1);
+            list.add(i + (matrixSize - 1));
         }
         list.removeAll(openList);
         return list;
@@ -143,13 +148,20 @@ public class AStar {
         list.removeAll(openList);
         return list;
     }
-
-    public static void printFinalMap() {
-
-    }
   
-    public static void printMap() {
+    public static void printMap(boolean finalMap) {
     	String l1  ="", l2 = "", l3 ="";
+        List<Integer> list = new ArrayList();
+        if(finalMap){        
+          list.add(endNode);
+          int a = endNode;
+          int count = 0;
+          while (!list.contains(startNode) && count <100){            
+            list.add(map[a].parent);
+            a = map[a].parent;
+            count++;
+          }
+        }
           
     	for (int i = 0; i < map.length; i++) {
         	
@@ -163,15 +175,30 @@ public class AStar {
               	l2 += "║XXXXXXXXX║";
               	l3 += "║XXXXXXXXX║";
             }else{
-            l1 += ("║" + strI + strH + "║");
-            l3 += ("║" + strF + strG + "║");         
-            
-            if (i == startNode || i == endNode){
-            	l2 += ("║    @    ║");
-            }else if (closedList.contains(i)){
-            	l2 += ("║    0    ║");
-            }else 
-                l2 += ("║         ║");
+              if(finalMap){
+                l1 += ("║         ║");
+                l3 += ("║         ║");         
+
+                if (list.contains(i)){
+                    l2 += ("║    0    ║");            
+                }else {
+                    l2 += ("║         ║");
+                }
+
+              }else{
+                l1 += ("║" + strI + strH + "║");
+                l3 += ("║" + strF + strG + "║");         
+
+                if (i == startNode || i == endNode){
+                    l2 += ("║    @    ║");
+                }else if (closedList.contains(i)){
+                    l2 += ("║    0    ║");
+                }else {
+                    l2 += ("║         ║");
+                }
+                
+              }
+             
             }
           	if (i % (matrixSize) == matrixSize-1) {
                	printLines(l1, l2, l3);
